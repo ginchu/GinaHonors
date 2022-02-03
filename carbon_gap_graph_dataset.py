@@ -97,7 +97,7 @@ class GraphDataset(Dataset):
     
     def process(self, k):
     # make graph for each molecule
-        print("Starting dataset.process()...")
+        print("Start processing dataset...")
         tmp = []
         counter=0
         for xyz in self.xyz:
@@ -106,7 +106,7 @@ class GraphDataset(Dataset):
             counter+=1
             tmp.append(self.xyz_to_graph(xyz, k, node_featurizer=self.featurize_atoms, edge_featurizer=True))
         self.graph = tmp
-        print("Finished dataset.process()\n")
+        print("Finished processing dataset\n")
          
     def __len__(self):
         return len(self.E)
@@ -150,12 +150,12 @@ def main():
     graph_dataset = GraphDataset()
     graph_dataset.process(3)
     print("Length of dataset:",len(graph_dataset))
-    print("List of All Energies:", graph_dataset.E)
+    #print("List of All Energies:", graph_dataset.E)
     #print(graph_dataset[3])
     
     batch_size = 32
     dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
-    print("\nBatch size:", batch_size)
+    print("Batch size:", batch_size)
     print("Length of Dataloader or Num of Batches:", len(dataloader))
     model = Model(1,1)  
 
@@ -163,6 +163,7 @@ def main():
     #    print(batch_x, batch_y)
 
     epochs = 50
+    print("Number of Epochs:", epochs, "\n")
     optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
     for epoch in tqdm(range(epochs)):
         model.train()
