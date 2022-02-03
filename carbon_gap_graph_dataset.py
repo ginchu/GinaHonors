@@ -130,7 +130,7 @@ class Model(nn.Module):
                            edge_hidden_feats=edge_hidden_feats,
                            num_step_message_passing=num_step_message_passing)
         
-        self.readout = MLPNodeReadout(node_feats=node_in_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
+        self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
         
         self.predict = nn.Sequential(
             nn.Linear(node_out_feats, node_out_feats), 
@@ -141,7 +141,7 @@ class Model(nn.Module):
         
     def forward(self, g, nodes, edges):
         node_feats = self.gnn(g, nodes, edges)
-        graph_feats = self.readout(g, nodes)
+        graph_feats = self.readout(g, node_feats)
         return self.predict(graph_feats)
 
 def main():
