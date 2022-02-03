@@ -14,6 +14,10 @@ from dgl.dataloading import GraphDataLoader
 from dgllife.model.gnn.mpnn import MPNNGNN
 from dgllife.model.readout.mlp_readout import MLPNodeReadout
 
+import wandb
+
+wandb.login()
+
 class GraphDataset(Dataset):
     def __init__(self):
         self.xyz = []
@@ -22,8 +26,8 @@ class GraphDataset(Dataset):
         for mol in iread('Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
             self.xyz.append(mol.get_positions())
             self.E.append(mol.get_potential_energy())
-        self.xyz = self.xyz[:10]
-        self.E = self.E[:10]
+        #self.xyz = self.xyz[:10]
+        #self.E = self.E[:10]
 
     def nearest_neighbors(self, g, m, k):
         '''
@@ -63,7 +67,7 @@ class GraphDataset(Dataset):
         c_e = []
         for atom in range(len(molecule)):
             c_e.append(0)
-        return {'energy': torch.tensor(c_e).float()}
+        return {'energy': torch.tensor(c_e).reshape(-1,1).float()}
     
     def xyz_to_graph(self, molecule, k, node_featurizer, edge_featurizer):
         '''
@@ -87,7 +91,7 @@ class GraphDataset(Dataset):
             g.ndata.update(node_featurizer(molecule))
 
         if edge_featurizer is True:
-            g.edata.update({'length': torch.tensor(ndist).float()})
+            g.edata.update({'length': torch.tensor(ndist).reshape(-1,1).float()})
 
         return g
     
@@ -114,7 +118,7 @@ class Model(nn.Module):
     def __init__(self, 
                  node_in_feats,
                  edge_in_feats,
-                 node_out_feats=243,
+                 node_out_feats=64,
                  edge_hidden_feats=128,
                  n_tasks=1,
                  num_step_message_passing=6):
@@ -129,7 +133,7 @@ class Model(nn.Module):
         self.readout = MLPNodeReadout(node_feats=node_in_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
         
         self.predict = nn.Sequential(
-            nn.Linear(5, node_out_feats), # batch size, node_out_feats
+            nn.Linear(node_out_feats, node_out_feats), 
             nn.Dropout(p=0.5),
             nn.ReLU(),
             nn.Linear(node_out_feats, n_tasks)
@@ -141,33 +145,32 @@ class Model(nn.Module):
         return self.predict(graph_feats)
 
 def main():
+    wandb.init(project="GinaHonors", entity="ginac")
+
     graph_dataset = GraphDataset()
     graph_dataset.process(3)
     print("Length of dataset:",len(graph_dataset))
     print("List of All Energies:", graph_dataset.E)
     #print(graph_dataset[3])
     
-    batch_size = 5
-    dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)#,batch_size=32)
+    batch_size = 32
+    dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
     print("\nBatch size:", batch_size)
-    print("Length of Dataloader/Num of Batches:", len(dataloader))
-    model = Model(243,725) # (number of nodes in each batch, 
+    print("Length of Dataloader or Num of Batches:", len(dataloader))
+    model = Model(1,1)  
 
-    for batch_x, batch_y in dataloader:
-        print(batch_x, batch_y)
+    #for batch_x, batch_y in dataloader:
+    #    print(batch_x, batch_y)
 
-    epochs = 5
+    epochs = 50
     optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
     for epoch in tqdm(range(epochs)):
         model.train()
         running_loss = 0.
         for batch_x, batch_y in dataloader:
-            print("Batch Started...")
             optimizer.zero_grad()
             atoms = batch_x.ndata['energy']
             edges = batch_x.edata['length']
-            print(atoms.shape)
-            print(edges.shape)
             y_pred = model(batch_x, atoms, edges)
             mse = ((y_pred.reshape(-1) - batch_y)**2).sum()
             running_loss += mse.item()
@@ -176,6 +179,7 @@ def main():
             
         running_loss /= len(dataloader)
         print("Train loss: ", running_loss)
+        wandb.log({'Epoch Num': epochs+1, 'Train loss': running_loss})
 
 if __name__ == "__main__":
     main()
