@@ -68,29 +68,77 @@ Here is an example of a citation: \cite{gap20}, \cite{DGL}
 
 \section{Background}
 
-\begin{figure}
-  \centering
-  \includegraphics[scale=2]{carbon}
+\subsection{Chemistry}
+\begin{itemize}
+    \item[!] Machine Learning Meets Quantum Physics textbook
+\end{itemize}
+\subsubsection{Geometry and Structure}
+\begin{itemize}
+  \item structure property relation for molecules
+  \item molecular \& material properties: Electronic properties (for hard degrees of freedom, crystalline)
+  \item Born–Oppenheimer approximation pg 13  
+  \item ground state, atomization energy
+\end{itemize}
+
+\subsubsection{Quantum Mechanics}
+\begin{itemize}
+    \item object being in multiple states
+    \item Schrödinger equation, DFT, PES
+    \item computational cost with solving the equation
+\end{itemize}
+
+\newpage
+
+
+\subsection{Machine Learning}
+\begin{itemize}
+    \item[!] https://distill.pub/2021/gnn-intro/
+\end{itemize}
+\subsubsection{Graph Represented Data}
+\begin{itemize}
+    \item graph representation (molecules as graphs)
+    \item types of problems that use graph structured data 
+    \item integrating graphs in neural networks (matrices, adjacency lists)
+\end{itemize}
+\subsubsection{Graph Neural Networks}    
+\begin{itemize}
+    \item formal definition of graph neural networks
+    \item pooling
+    \item message passing
+    \begin{itemize}
+        \item https://dl.acm.org/doi/10.5555/3305381.3305512
+        \item Machine Learning Meets Quantum Physics textbook Ch 10
+    \end{itemize}
+\end{itemize}
+
+%\begin{figure}
+  %\centering
+  %\includegraphics[scale=2]{carbon}
   
-  \caption{Nice caption}\label{fig:my_figure}
-\end{figure}
+  %\caption{Nice caption}\label{fig:my_figure}
+%\end{figure}
 
-In figure \ref{fig:my_figure}
 
-Graph neural networks (message passing)
+%In figure \ref{fig:my_figure}
 
-Quantum chemistry
 
 \newpage 
 
 \section{Method}
+\subsubsection{Carbon GAP 20 dataset (describe, why)}  
+\subsubsection{graph model (describe, why)}  
 
 \newpage
 
 \section{Experimental Evaluation}
-
-Describe experiments precisely, report results, analysus results
-
+\subsubsection{other experiments}  
+\begin{itemize}
+    \item papers citing GAP 20
+    \item Data-efficient iterative training of Gaussian approximation potentials: Application to surface structure determination of rutile IrO2 and RuO2 (https://aip.scitation.org/doi/abs/10.1063/5.0071249)
+    \item A comprehensive assessment of empirical potentials for carbon materials (https://aip.scitation.org/doi/abs/10.1063/5.0052870)
+    \item Transferability of machine learning potentials: Protonated water neural network potential applied to the protonated water hexamer (https://aip.scitation.org/doi/full/10.1063/5.0035438)
+    \item Machine learning interatomic potential developed for molecular simulations on thermal properties of Beta-Ga2O3 (https://aip.scitation.org/doi/abs/10.1063/5.0027643)
+\end{itemize}
 \newpage
 
 \section{Conclusion}
