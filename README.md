@@ -10,7 +10,8 @@
 - ipynb: older jupyter notebookes not in use
 
 ## Experimental Results
-- [https://wandb.ai/ginac/GinaHonors](https://wandb.ai/ginac/GinaHonors){:target="_blank"}
+- <a href="https://wandb.ai/ginac/GinaHonors" target="_blank">wandb</a>
+- [https://wandb.ai/ginac/GinaHonors](https://wandb.ai/ginac/GinaHonors)
 
 ## Data Installation
 - on command line or terminal
@@ -18,4 +19,4 @@
 wget https://www.repository.cam.ac.uk/bitstream/handle/1810/307452/Carbon_GAP_20.tgz
 tar -xzvf Carbon_GAP_20.tgz
 ```
-- [Carbon GAP 20 Paper](https://aip.scitation.org/doi/10.1063/5.0005084){:target="_blank"}
+- [Carbon GAP 20 Paper](https://aip.scitation.org/doi/10.1063/5.0005084)
