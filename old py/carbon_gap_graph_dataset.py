@@ -2,9 +2,21 @@ from ase.io import iread
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
 from scipy.spatial import distance_matrix
 import numpy as np
 import dgl
+from ase.calculators.mopac import MOPAC
+from ase import Atoms
+
+from tqdm import tqdm as tqdm
+from dgl.dataloading import GraphDataLoader
+from dgllife.model.gnn.mpnn import MPNNGNN
+from dgllife.model.readout.mlp_readout import MLPNodeReadout
+
+import wandb
+
+wandb.login()
 
 class GraphDataset(Dataset):
     def __init__(self):
@@ -101,3 +113,74 @@ class GraphDataset(Dataset):
 
     def __getitem__(self, idx):
         return self.graph[idx], self.E[idx]
+
+class Model(nn.Module):
+    def __init__(self, 
+                 node_in_feats,
+                 edge_in_feats,
+                 node_out_feats=64,
+                 edge_hidden_feats=128,
+                 n_tasks=1,
+                 num_step_message_passing=6):
+        
+        super(Model, self).__init__()
+        self.gnn = MPNNGNN(node_in_feats=node_in_feats,
+                           node_out_feats=node_out_feats,
+                           edge_in_feats=edge_in_feats,
+                           edge_hidden_feats=edge_hidden_feats,
+                           num_step_message_passing=num_step_message_passing)
+        
+        self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
+        
+        self.predict = nn.Sequential(
+            nn.Linear(node_out_feats, node_out_feats), 
+            nn.Dropout(p=0.5),
+            nn.ReLU(),
+            nn.Linear(node_out_feats, n_tasks)
+        )
+        
+    def forward(self, g, nodes, edges):
+        node_feats = self.gnn(g, nodes, edges)
+        graph_feats = self.readout(g, node_feats)
+        return self.predict(graph_feats)
+
+def main():
+    wandb.init(project="GinaHonors", entity="ginac")
+
+    graph_dataset = GraphDataset()
+    graph_dataset.process(3)
+    print("Length of dataset:",len(graph_dataset))
+    #print("List of All Energies:", graph_dataset.E)
+    #print(graph_dataset[3])
+    
+    batch_size = 32
+    dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
+    print("Batch size:", batch_size)
+    print("Length of Dataloader or Num of Batches:", len(dataloader))
+    model = Model(1,1)  
+
+    #for batch_x, batch_y in dataloader:
+    #    print(batch_x, batch_y)
+
+    epochs = 50
+    print("Number of Epochs:", epochs, "\n")
+    optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
+    for epoch in tqdm(range(epochs)):
+        model.train()
+        running_loss = 0.
+        for batch_x, batch_y in dataloader:
+            optimizer.zero_grad()
+            atoms = batch_x.ndata['energy']
+            edges = batch_x.edata['length']
+            y_pred = model(batch_x, atoms, edges)
+            mse = ((y_pred.reshape(-1) - batch_y)**2).sum()
+            running_loss += mse.item()
+            mse.backward()
+            optimizer.step()
+            
+        running_loss /= len(dataloader)
+        print("Train loss: ", running_loss)
+        wandb.log({'Epoch Num': epochs+1, 'Train loss': running_loss})
+
+if __name__ == "__main__":
+    main()
