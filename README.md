@@ -1,7 +1,6 @@
 # GinaHonors
 
-## To Do List
-[To Do List](Todo.md)
+## [To Do List](Todo.md)
 
 ## Content
 - [src](src): data prep, model, train
@@ -10,7 +9,6 @@
 - ipynb: older jupyter notebookes not in use
 
 ## Experimental Results
-- <a href="https://wandb.ai/ginac/GinaHonors" target="_blank">wandb</a>
 - [https://wandb.ai/ginac/GinaHonors](https://wandb.ai/ginac/GinaHonors)
 
 ## Data Installation
