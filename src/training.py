@@ -16,26 +16,35 @@ import wandb
 wandb.login()
 
 def main():
-    wandb.init(project="GinaHonors", entity="ginac")
+    batch_size = 32
+    epochs = 1000 
+    lr = 0.001
+
+    k_near = 3
+
+    config_dict = dict(
+        k_neighbors = k_near,
+        batch_size = batch_size,
+        epochs = epochs,
+        learn_rate = lr
+    )
+
+    wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
 
     graph_dataset = GraphDataset()
-    graph_dataset.process(3)
+    graph_dataset.process(k_near)
     print("Length of dataset:",len(graph_dataset))
-    #print("List of All Energies:", graph_dataset.E)
-    #print(graph_dataset[3])
     
-    batch_size = 32
     dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
     print("Batch size:", batch_size)
     print("Length of Dataloader or Num of Batches:", len(dataloader))
-    model = Model(1,1)  
+    model = Model(1,1) #, num_step_message_passing=3)  
 
     #for batch_x, batch_y in dataloader:
     #    print(batch_x, batch_y)
 
-    epochs = 50
     print("Number of Epochs:", epochs, "\n")
-    optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(),lr=lr)
     for epoch in tqdm(range(epochs)):
         model.train()
         running_loss = 0.
@@ -51,7 +60,8 @@ def main():
             
         running_loss /= len(dataloader)
         print("Train loss: ", running_loss)
-        wandb.log({'Epoch Num': epochs+1, 'Train loss': running_loss})
+        wandb.log({'Epoch Num': epoch+1, 'Train loss': running_loss})
 
 if __name__ == "__main__":
     main()
+

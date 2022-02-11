@@ -24,7 +24,8 @@ class Model(nn.Module):
                            num_step_message_passing=num_step_message_passing)
         
         self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
-        
+        #self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats= 1000, graph_feats=1, activation=ShiftedSoftplus())
+
         self.predict = nn.Sequential(
             nn.Linear(node_out_feats, node_out_feats), 
             nn.Dropout(p=0.5),
@@ -35,4 +36,4 @@ class Model(nn.Module):
     def forward(self, g, nodes, edges):
         node_feats = self.gnn(g, nodes, edges)
         graph_feats = self.readout(g, node_feats)
-        return self.predict(graph_feats)
+        return self.predict(graph_feats) # graph_feats

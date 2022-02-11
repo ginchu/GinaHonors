@@ -13,6 +13,7 @@ from tqdm import tqdm as tqdm
 from dgl.dataloading import GraphDataLoader
 from dgllife.model.gnn.mpnn import MPNNGNN
 from dgllife.model.readout.mlp_readout import MLPNodeReadout
+from dgl.nn.pytorch.conv.cfconv import ShiftedSoftplus
 
 import wandb
 
@@ -32,7 +33,7 @@ class GraphDataset(Dataset):
     def nearest_neighbors(self, g, m, k):
         '''
             g --> (3) one coordinate used as reference point
-            m --> (x,3) whole molecule geometry
+            m --> (x,3) matrix, whole molecule geometry
             k --> (1) number of nearest neighbors to be found
             - assumes g is in m so the first closest neighbor is excluded
             - takes the max amount of neighbors if k is greater than total atoms in a molecule
@@ -58,20 +59,9 @@ class GraphDataset(Dataset):
             k_dist.append(dist[0][idx])
         return k_nearest, k_dist, indices
 
-    def featurize_atoms(self, molecule):
-    # featurize atoms
-        #c = Atoms('C', positions=[[0, 0, 0]])
-        #c.calc = MOPAC(label='C', task='PM7 1SCF UHF')
-        #energy = c.get_potential_energy()
-        
-        c_e = []
-        for atom in range(len(molecule)):
-            c_e.append(0)
-        return {'energy': torch.tensor(c_e).reshape(-1,1).float()}
-    
     def xyz_to_graph(self, molecule, k, node_featurizer, edge_featurizer):
         '''
-            molecule --> (x,3) whole molecule geometry
+            molecule --> (x,3) matrix, whole molecule geometry
             k --> (1) number of nearest neighbors to be found
             - creates a graph of the molecule where each atom is connected to its k nearest neighbors
             - featurizes the nodes with the energy and the edges with distance
@@ -87,8 +77,11 @@ class GraphDataset(Dataset):
                 ndist.append(dist[i])
         g = dgl.graph((torch.tensor(src), torch.tensor(dest)))
 
-        if node_featurizer is not None:
-            g.ndata.update(node_featurizer(molecule))
+        if node_featurizer is True:
+            c_e = []
+            for atom in range(len(molecule)):
+                c_e.append(0)
+            g.ndata.update({'energy': torch.tensor(c_e).reshape(-1,1).float()})
 
         if edge_featurizer is True:
             g.edata.update({'length': torch.tensor(ndist).reshape(-1,1).float()})
@@ -104,7 +97,7 @@ class GraphDataset(Dataset):
             if counter%1000 == 0:
                 print(counter)
             counter+=1
-            tmp.append(self.xyz_to_graph(xyz, k, node_featurizer=self.featurize_atoms, edge_featurizer=True))
+            tmp.append(self.xyz_to_graph(xyz, k, node_featurizer=True, edge_featurizer=True))
         self.graph = tmp
         print("Finished processing dataset\n")
          
@@ -131,7 +124,8 @@ class Model(nn.Module):
                            num_step_message_passing=num_step_message_passing)
         
         self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats=edge_hidden_feats, graph_feats=node_out_feats)
-        
+        #self.readout = MLPNodeReadout(node_feats=node_out_feats, hidden_feats= 1000, graph_feats=1, activation=ShiftedSoftplus())
+
         self.predict = nn.Sequential(
             nn.Linear(node_out_feats, node_out_feats), 
             nn.Dropout(p=0.5),
@@ -142,29 +136,38 @@ class Model(nn.Module):
     def forward(self, g, nodes, edges):
         node_feats = self.gnn(g, nodes, edges)
         graph_feats = self.readout(g, node_feats)
-        return self.predict(graph_feats)
+        return self.predict(graph_feats) # graph_feats
 
 def main():
-    wandb.init(project="GinaHonors", entity="ginac")
+    batch_size = 32
+    epochs = 1000 
+    lr = 0.001
+
+    k_near = 3
+
+    config_dict = dict(
+        k_neighbors = k_near,
+        batch_size = batch_size,
+        epochs = epochs,
+        learn_rate = lr
+    )
+
+    wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
 
     graph_dataset = GraphDataset()
-    graph_dataset.process(3)
+    graph_dataset.process(k_near)
     print("Length of dataset:",len(graph_dataset))
-    #print("List of All Energies:", graph_dataset.E)
-    #print(graph_dataset[3])
     
-    batch_size = 32
     dataloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
     print("Batch size:", batch_size)
     print("Length of Dataloader or Num of Batches:", len(dataloader))
-    model = Model(1,1)  
+    model = Model(1,1) #, num_step_message_passing=3)  
 
     #for batch_x, batch_y in dataloader:
     #    print(batch_x, batch_y)
 
-    epochs = 50
     print("Number of Epochs:", epochs, "\n")
-    optimizer = torch.optim.Adam(model.parameters(),lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(),lr=lr)
     for epoch in tqdm(range(epochs)):
         model.train()
         running_loss = 0.
@@ -180,7 +183,7 @@ def main():
             
         running_loss /= len(dataloader)
         print("Train loss: ", running_loss)
-        wandb.log({'Epoch Num': epochs+1, 'Train loss': running_loss})
+        wandb.log({'Epoch Num': epoch+1, 'Train loss': running_loss})
 
 if __name__ == "__main__":
     main()

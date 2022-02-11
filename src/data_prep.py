@@ -11,7 +11,7 @@ class GraphDataset(Dataset):
         self.xyz = []
         self.E = []
         self.graph = []
-        for mol in iread('../Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
+        for mol in iread('Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
             self.xyz.append(mol.get_positions())
             self.E.append(mol.get_potential_energy())
         #self.xyz = self.xyz[:10]
@@ -20,7 +20,7 @@ class GraphDataset(Dataset):
     def nearest_neighbors(self, g, m, k):
         '''
             g --> (3) one coordinate used as reference point
-            m --> (x,3) whole molecule geometry
+            m --> (x,3) matrix, whole molecule geometry
             k --> (1) number of nearest neighbors to be found
             - assumes g is in m so the first closest neighbor is excluded
             - takes the max amount of neighbors if k is greater than total atoms in a molecule
@@ -46,20 +46,9 @@ class GraphDataset(Dataset):
             k_dist.append(dist[0][idx])
         return k_nearest, k_dist, indices
 
-    def featurize_atoms(self, molecule):
-    # featurize atoms
-        #c = Atoms('C', positions=[[0, 0, 0]])
-        #c.calc = MOPAC(label='C', task='PM7 1SCF UHF')
-        #energy = c.get_potential_energy()
-        
-        c_e = []
-        for atom in range(len(molecule)):
-            c_e.append(0)
-        return {'energy': torch.tensor(c_e).reshape(-1,1).float()}
-    
     def xyz_to_graph(self, molecule, k, node_featurizer, edge_featurizer):
         '''
-            molecule --> (x,3) whole molecule geometry
+            molecule --> (x,3) matrix, whole molecule geometry
             k --> (1) number of nearest neighbors to be found
             - creates a graph of the molecule where each atom is connected to its k nearest neighbors
             - featurizes the nodes with the energy and the edges with distance
@@ -75,8 +64,11 @@ class GraphDataset(Dataset):
                 ndist.append(dist[i])
         g = dgl.graph((torch.tensor(src), torch.tensor(dest)))
 
-        if node_featurizer is not None:
-            g.ndata.update(node_featurizer(molecule))
+        if node_featurizer is True:
+            c_e = []
+            for atom in range(len(molecule)):
+                c_e.append(0)
+            g.ndata.update({'energy': torch.tensor(c_e).reshape(-1,1).float()})
 
         if edge_featurizer is True:
             g.edata.update({'length': torch.tensor(ndist).reshape(-1,1).float()})
@@ -92,7 +84,7 @@ class GraphDataset(Dataset):
             if counter%1000 == 0:
                 print(counter)
             counter+=1
-            tmp.append(self.xyz_to_graph(xyz, k, node_featurizer=self.featurize_atoms, edge_featurizer=True))
+            tmp.append(self.xyz_to_graph(xyz, k, node_featurizer=True, edge_featurizer=True))
         self.graph = tmp
         print("Finished processing dataset\n")
          
