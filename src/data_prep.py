@@ -11,7 +11,7 @@ class GraphDataset(Dataset):
         self.xyz = []
         self.E = []
         self.graph = []
-        for mol in iread('Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
+        for mol in iread('../Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
             self.xyz.append(mol.get_positions())
             self.E.append(mol.get_potential_energy())
         #self.xyz = self.xyz[:10]
