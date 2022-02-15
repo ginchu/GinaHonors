@@ -22,9 +22,10 @@ def main():
     lr = 0.001
 
     knn = 3
-
+    atom_e=False
     config_dict = dict(
         k_neighbors = knn,
+        atom_e = atom_e,
         batch_size = batch_size,
         epochs = epochs,
         learn_rate = lr
@@ -34,7 +35,7 @@ def main():
 
     # Creating Dataset
     graph_dataset = GraphDataset()
-    graph_dataset.process(knn)
+    graph_dataset.process(knn, atom_e=atom_e)
     print("Length of dataset:",len(graph_dataset))
     
     # Split and Batch Dataset
