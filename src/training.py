@@ -17,7 +17,10 @@ wandb.login()
 
 def main():
     # Parameters
+<<<<<<< HEAD
     data_split = 0.8
+=======
+>>>>>>> 47ea8d2446061b90f7a8ff0ad034179c6a3b5ca8
     batch_size = 32
     epochs = 1000 
     lr = 0.001
@@ -27,7 +30,10 @@ def main():
     config_dict = dict(
         k_neighbors = knn,
         atom_e = atom_e,
+<<<<<<< HEAD
         data_split = data_split,
+=======
+>>>>>>> 47ea8d2446061b90f7a8ff0ad034179c6a3b5ca8
         batch_size = batch_size,
         epochs = epochs,
         learn_rate = lr
@@ -41,7 +47,11 @@ def main():
     print("Length of dataset:",len(graph_dataset))
     
     # Split and Batch Dataset
+<<<<<<< HEAD
     train, val, test = split_dataset(graph_dataset,[data_split,0,(1-data_split)])
+=======
+    train, val, test = split_dataset(graph_dataset,[0.8,0,0.2])
+>>>>>>> 47ea8d2446061b90f7a8ff0ad034179c6a3b5ca8
     trainloader = GraphDataLoader(train,batch_size=batch_size)
     testloader = GraphDataLoader(test,batch_size=batch_size)
     print("Batch size:", batch_size)
