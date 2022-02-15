@@ -1,7 +1,16 @@
 <ul>
 <li> Stop using notebooks. Move notebooks into some directory so we have a copy. Split code between Dataset creation and training.  
+    <ul>
+    <li> G: done
+    </ul>
 <li> Add option to data preparation: target is either energy, or atomization energy
+    <ul>
+    <li> G: done
+    </ul>
 <li> Split data train and test, write code for testing
+    <ul>
+    <li> G: done
+    </ul>
 <li> Experiment with removing nodes when they do not have features: https://docs.dgl.ai/en/0.6.x/generated/dgl.to_simple.html
 <li> Add to the code invariance to rotation, translation, etc...
 <li> Continue adding more information for wandb
