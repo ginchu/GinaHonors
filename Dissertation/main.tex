@@ -2,6 +2,7 @@
 
 \usepackage{fullpage}
 \usepackage{graphicx}
+\spac
 
 \title{Honors Thesis}
 \author{Gina Chun}
@@ -72,13 +73,18 @@ Here is an example of a citation: \cite{gap20}, \cite{DGL}
 \begin{itemize}
     \item[!] Machine Learning Meets Quantum Physics textbook
 \end{itemize}
+
+Using machine learning to study any kind of material, not just carbon, is just one method under a wider category of techniques called material modeling. Material modeling in chemistry is the method of using computer simulations to predict physical and chemical properties of a material in replace of real-world experiments. This process of predicting the properties of a given material is called a forward problem. Through existing tools such as statistical mechanics and the Schrödinger equation, which will be talked about later, an exact unique solution exists for the forward problem of predicting material properties and is the reason why many opt to use this procedure. Material modeling also uses this approach because the inverse problem, constructing a material through a set of pre-determined properties, is much more difficult and costly to do.
+
 \subsubsection{Geometry and Structure}
 \begin{itemize}
   \item structure property relation for molecules
+  \newline "Structure determines properties" is a very important and central concept in chemistry. This structure-property relationship explains that since all materials are made of atoms, identifying and describing a material comes down to simply understanding its atomic structure. For studying structures, there is never a need to look at the entire material as well. That would be too many atoms to study at once and atoms of most solid materials, like crystalline carbon, are arranged in an organized repetitive pattern so it is sufficient enough to look at just a patch of that pattern. Studying the properties of a microscopic structure, in general, translates well to its macroscopic structure which allows it to pair well with the material modeling approach
   \item molecular \& material properties: Electronic properties (for hard degrees of freedom, crystalline)
-  \item Born–Oppenheimer approximation pg 13  
-  \item ground state, atomization energy
+  \item Born–Oppenheimer approximation, ground state, atomization energy
+  \newline An atom can be described as having a heavy nucleus surrounded by a cloud of light electrons and since the mass of an atom is concentrated on its nucleus, the atom's position is associated with the position of the nucleus. Thus moving atoms can be described as moving nuclei being followed by their clouds of electrons. The Born–Oppenheimer approximation is the mathematical formulation of this concept and is the foundation of material modeling. Molecular and material properties can be roughly divided into two categories: electronic and thermodynamic properties.Electronic properties are essentially the properties of that electron cloud that is following the nucleus and is best described through quantum mechanics, which will be covered in more detail later. To give a general overview, the electronic cloud can be in certain states such as its lowest-energy state called the ground state. Some ground state properties include the atomization energy, which is the energy released when a molecule is formed, and the dipole moment and polarizability, which describes the shape and responsiveness of the cloud. This paper and its method will be predicting ground-state electronic properties so that is what will be focused on (explain why?). 
 \end{itemize}
+
 
 \subsubsection{Quantum Mechanics}
 \begin{itemize}
