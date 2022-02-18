@@ -8,6 +8,8 @@ from ase import Atoms
 from tqdm import tqdm as tqdm
 from dgl.dataloading import GraphDataLoader
 from dgl.data.utils import split_dataset
+import time
+
 from data_prep import *
 from model import *
 
@@ -18,15 +20,16 @@ wandb.login()
 def main():
     # Parameters
     data_split = 0.8
-    batch_size = 32
+    batch_size = 16
     epochs = 1000 
     lr = 0.001
 
     knn = 3
-    atom_e=False
+    coul_mat=False
+
     config_dict = dict(
         k_neighbors = knn,
-        atom_e = atom_e,
+        coul_mat = coul_mat,
         data_split = data_split,
         batch_size = batch_size,
         epochs = epochs,
@@ -37,7 +40,7 @@ def main():
 
     # Creating Dataset
     graph_dataset = GraphDataset()
-    graph_dataset.process(knn, atom_e=atom_e)
+    graph_dataset.process(knn, coul_mat=coul_mat)
     print("Length of dataset:",len(graph_dataset))
     
     # Split and Batch Dataset
@@ -56,6 +59,7 @@ def main():
 
     for epoch in tqdm(range(epochs)):
         # TRAIN
+        #t0 = time.time()
         model.train()
         running_loss = 0.
         for batch_x, batch_y in trainloader:
@@ -71,6 +75,8 @@ def main():
         running_loss /= len(trainloader)
         print("Train loss: ", running_loss)
         wandb.log({'Epoch Num': epoch+1, 'Train loss': running_loss})
+        #t1 = time.time()
+        #print(t1-t0)
 
         # TEST
         if epoch%10 == 0:
@@ -85,13 +91,6 @@ def main():
                 
             test_loss /= len(testloader)
             
-            if not best_score:
-                best_score = test_loss
-                torch.save(model.state_dict(), 'best-model.pt')
-            if test_loss < best_score:
-                best_score = test_loss
-                torch.save(model.state_dict(), 'best-model.pt')
-
             print("Test loss: ", test_loss)
             wandb.log({'Epoch Num': epoch+1, 'Test loss': test_loss, 'Best Test Loss': best_score})
 
