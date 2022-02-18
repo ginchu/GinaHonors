@@ -91,6 +91,11 @@ def main():
                 
             test_loss /= len(testloader)
             
+            if not best_score:
+                best_score = test_loss
+            if test_loss < best_score:
+                best_score = test_loss
+
             print("Test loss: ", test_loss)
             wandb.log({'Epoch Num': epoch+1, 'Test loss': test_loss, 'Best Test Loss': best_score})
 
