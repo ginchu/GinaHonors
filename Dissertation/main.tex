@@ -2,7 +2,8 @@
 
 \usepackage{fullpage}
 \usepackage{graphicx}
-\spac
+\usepackage{setspace}
+\doublespacing
 
 \title{Honors Thesis}
 \author{Gina Chun}
@@ -28,7 +29,7 @@
 
 
 
-\subsection{why carbon is important}\label{Test}
+\subsection{Why Carbon is Important}\label{Test}
 
 % In this section to say blah
 
@@ -49,7 +50,7 @@ easily accessible devices, tools, and products for general society.
 
 Now referencing the introduction \ref{Test}
 
-\subsection{why use machine learning}
+\subsection{Why Use Machine Learning}
 As carbon is an important element, its versatility makes it a very
 complex subject of study. Carbon manifests in various physical forms,
 called allotropes, each with very different properties. Because of
@@ -152,11 +153,28 @@ properties such as atomization energy or dipole moment can be done through the e
     \item[!] https://distill.pub/2021/gnn-intro/
 \end{itemize}
 \subsubsection{Graph Represented Data}
-\begin{itemize}
-    \item graph representation (molecules as graphs)
-    \item types of problems that use graph structured data 
-    \item integrating graphs in neural networks (matrices, adjacency lists)
-\end{itemize}
+% graph representation (molecules as graphs)
+% types of problems that use graph structured data 
+% integrating graphs in neural networks (matrices, adjacency lists)
+In a molecule, different pairs of atoms and bonds have different distances so it is easy to describe
+these molecules as a graph. The atoms are the nodes and the bonds are the undirected edges. In general, 
+there are three types of prediction tasks that are done on graphs: graph-level, node-level, and edge-level. 
+Graph-level approaches predict a single property for a whole graph while a node-level approach predicts 
+a property for each node in the graph. Edge-level approaches predict the property or existence of edges 
+in a particular graph. This paper focuses on the graph-level task of predicting the energy of carbon 
+molecules. 
+
+Integrating these graphs into machine learning models will depend on how they are represented. 
+An obvious representation method would be the adjacency matrix since it captures the graph's connectivity. 
+However, the more nodes there are, the more space-inefficient the adjacency matrix becomes and in addition,
+the adjacency matrix of a molecule is not unique. There are many different ways to express the same 
+connectivity with these matrices which causes the model to be permutation invariant since it will see 
+these matrices as different molecules when they are actually the same. A better memory-efficient representation 
+is adjacency lists where each item in this list describes the connection between just two nodes. This cuts out 
+a lot of the parts of the graph that are disconnected that would be needlessly recorded in an adjacency matrix.
+% coulomb matrix?
+% look at textbook for graphs as well
+
 \subsubsection{Graph Neural Networks}    
 \begin{itemize}
     \item formal definition of graph neural networks
