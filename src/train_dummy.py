@@ -8,10 +8,11 @@ from ase import Atoms
 from tqdm import tqdm as tqdm
 from dgl.dataloading import GraphDataLoader
 from dgl.data.utils import split_dataset
+from sklearn.dummy import DummyRegressor
 import time
 
 from data_prep import *
-from model import *
+#from model import *
 
 import wandb
 
@@ -21,10 +22,8 @@ def main():
     # Parameters
     data_split = 0.8
     batch_size = 16
-    epochs = 3000 
+    epochs = 100 
     lr = 0.001
-    mse = True
-    mae = False
 
     knn = 3
     coul_mat=False
@@ -43,17 +42,10 @@ def main():
     #print("Length of Dataloader or Num of Batches:", len(dataloader))
     
     # Initialize Model
-    model = Model(1,1, num_step_message_passing=message_pass)  
+    dummy = DummyRegressor()  
 
-    # Optimizer
-    optimizer = torch.optim.Adam(model.parameters(),lr=lr)
-    
-    # Loss Function
-    if mse == True:
-        loss = lambda a,b : ((b - a)**2).sum()
-    elif mae == True:
-        loss = lambda a,b : torch.abs(b - a).sum()
-
+    print("Number of Epochs:", epochs, "\n")
+    #optimizer = torch.optim.Adam(model.parameters(),lr=lr)
     best_score = None
 
     config_dict = dict(
@@ -66,42 +58,28 @@ def main():
         epochs = epochs,
         learn_rate = lr
     )
-                                                                        
+                                                                       
     wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
-    
-    print("Number of Epochs:", epochs, "\n")
+
+
     for epoch in tqdm(range(epochs)):
         # TRAIN
-        t0 = time.time()
-        model.train()
+        #t0 = time.time()
         running_loss = 0.
         for batch_x, batch_y in trainloader:
-            optimizer.zero_grad()
-            atoms = batch_x.ndata['energy']
-            edges = batch_x.edata['length']
-            y_pred = model(batch_x, atoms, edges)
-            error = loss(batch_y, y_pred.reshape(-1))
-            running_loss += error.item()
-            error.backward()
-            optimizer.step()
-            
-        running_loss /= len(trainloader)
-        print("Train loss: ", running_loss)
-        wandb.log({'Epoch Num': epoch+1, 'Train loss': running_loss})
-        t1 = time.time()
-        print(t1-t0)
-        exit()
+            batch_x = torch.full(batch_y.shape,1)
+            dummy.fit(batch_x, batch_y)
+        #t1 = time.time()
+        #print(t1-t0)
 
         # TEST
         if epoch%10 == 0:
-            model.eval()
             test_loss = 0.
             for batch_x, batch_y in testloader:
-                atoms = batch_x.ndata['energy']
-                edges = batch_x.edata['length']
-                y_pred = model(batch_x, atoms, edges)
-                error = loss(batch_y, y_pred.reshape(-1))
-                test_loss += error.item()
+                batch_x = torch.full(batch_y.shape,1)
+                y_pred = torch.tensor(dummy.predict(batch_x))
+                mse = ((y_pred.reshape(-1) - batch_y)**2).sum()
+                test_loss += mse.item()
                 
             test_loss /= len(testloader)
             
