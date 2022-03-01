@@ -64,7 +64,9 @@ def main():
         data_split = data_split,
         batch_size = batch_size,
         epochs = epochs,
-        learn_rate = lr
+        learn_rate = lr,
+        mse = mse,
+        mae = mae
     )
                                                                         
     wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
@@ -72,8 +74,8 @@ def main():
     print("Number of Epochs:", epochs, "\n")
     for epoch in tqdm(range(epochs)):
         # TRAIN
-        t0 = time.time()
-        model.train()
+        #t0 = time.time()
+        #model.train()
         running_loss = 0.
         for batch_x, batch_y in trainloader:
             optimizer.zero_grad()
@@ -88,9 +90,9 @@ def main():
         running_loss /= len(trainloader)
         print("Train loss: ", running_loss)
         wandb.log({'Epoch Num': epoch+1, 'Train loss': running_loss})
-        t1 = time.time()
-        print(t1-t0)
-        exit()
+        #t1 = time.time()
+        #print(t1-t0)
+        #exit()
 
         # TEST
         if epoch%10 == 0:
