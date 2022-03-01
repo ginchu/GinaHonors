@@ -71,10 +71,8 @@ Here is an example of a citation: \cite{gap20}, \cite{DGL}
 \section{Background}
 
 \subsection{Chemistry}
-\begin{itemize}
-    \item[!] Machine Learning Meets Quantum Physics textbook
-\end{itemize}
 
+% Machine Learning Meets Quantum Physics textbook
 % Introduction to material modeling
 Using machine learning to study any kind of material, not just carbon, 
 is just one method under a wider category of techniques called material modeling. 
@@ -149,13 +147,10 @@ properties such as atomization energy or dipole moment can be done through the e
 
 
 \subsection{Machine Learning}
-\begin{itemize}
-    \item[!] https://distill.pub/2021/gnn-intro/
-\end{itemize}
-\subsubsection{Graph Represented Data}
+
+% https://distill.pub/2021/gnn-intro/
 % graph representation (molecules as graphs)
 % types of problems that use graph structured data 
-% integrating graphs in neural networks (matrices, adjacency lists)
 In a molecule, different pairs of atoms and bonds have different distances so it is easy to describe
 these molecules as a graph. The atoms are the nodes and the bonds are the undirected edges. In general, 
 there are three types of prediction tasks that are done on graphs: graph-level, node-level, and edge-level. 
@@ -164,6 +159,7 @@ a property for each node in the graph. Edge-level approaches predict the propert
 in a particular graph. This paper focuses on the graph-level task of predicting the energy of carbon 
 molecules. 
 
+% integrating graphs in neural networks (matrices, adjacency lists)
 Integrating these graphs into machine learning models will depend on how they are represented. 
 An obvious representation method would be the adjacency matrix since it captures the graph's connectivity. 
 However, the more nodes there are, the more space-inefficient the adjacency matrix becomes and in addition,
@@ -173,19 +169,34 @@ these matrices as different molecules when they are actually the same. A better 
 is adjacency lists where each item in this list describes the connection between just two nodes. This cuts out 
 a lot of the parts of the graph that are disconnected that would be needlessly recorded in an adjacency matrix.
 % coulomb matrix?
-% look at textbook for graphs as well
+
 
 \subsubsection{Graph Neural Networks}    
-\begin{itemize}
-    \item formal definition of graph neural networks
-    \item Graphic convolution
-    \item pooling
-    \item message passing
-    \begin{itemize}
-        \item https://dl.acm.org/doi/10.5555/3305381.3305512
-        \item Machine Learning Meets Quantum Physics textbook Ch 10
-    \end{itemize}
-\end{itemize}
+
+% Pooling and Message Passing
+A graph neural network (GNN) consists of transformations on all attributes of the given graph 
+that preserves its symmetries and thus is permutation invariant. The simplest kind of GNN has 
+each layer apply a multilayer perceptron (MLP) on each attribute of a graph which includes the
+nodes, edges, and global-context. Since predictions are made on the nodes of the graph, \emph{pooling} 
+is a way to gather information about the edges and give them to the nodes. This is done by 
+gathering the embeddings of each item that will be pooled into a matrix and then aggregate them, 
+usually through a summation. More complex predictions can be made by using pooling 
+in each of the GNN layers which lets information exchange influence updated embeddings. This 
+allows the embeddings to be aware of the graph's connectivity and is called \emph{message passing}. 
+The forward pass of a message passing neural network (MPNN) consists of two steps: message passing 
+and readout. In message passing, each node has a hidden state or feature vector and a function of 
+neighboring hidden states are aggregated for each node. The hidden state of a node is updated using 
+the obtained message and the previous hidden state of that node. Conceptually this allows each node 
+to understand and use previous history to influence their future update. The readout step computes 
+a feature vector for the whole graph.
+
+% Graph convolution (picture of convolution!)
+A specific way to carry out message passing is by using graph convolutions. Just like in convolutional 
+neural networks, the input is multiplied by a set of weights known as \emph{kernels}. It acts like a 
+filter that scans across the input graph and allows the model to learn features from neighboring nodes.
+Convolutions collect and condense information about local environments within a graph to learn about 
+its connectivity. Through this kernel, neighboring information can be aggregated with the information 
+the node is already holding and thus performs message passing throughout the convolutions.
 
 %\begin{figure}
   %\centering
@@ -203,7 +214,7 @@ a lot of the parts of the graph that are disconnected that would be needlessly r
 \section{Method}
 \subsubsection{Carbon GAP 20 dataset (describe, why)}  
 \subsubsection{graph model (describe, why)}  
-Not permutation invariance yet?
+Permutation invariant
 \newline The model itself is semi permutation invariant but the local environments must be permutation invariant for the model to be COMPLETELY permutation invariant
 \newline Also columb matrix creating rotation and translation invariance in paper
 \newline What if everyone becomes the neighbors: How the local level is more important
