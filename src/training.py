@@ -84,7 +84,10 @@ def main():
     wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
     
     # FOR TEST LOOP
-    test_dataset = DunnGraphDataset()
+    if test_data == 'dunn':
+        test_dataset = DunnGraphDataset()
+    elif test_data == 'modified total':
+        test_Dataset = TotalGraphDataset()
     test_dataset.process(knn, coul_mat=coul_mat)
     testloader = GraphDataLoader(test_dataset,batch_size=batch_size)
     
