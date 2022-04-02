@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import dgl
+from ase.io import read
 from ase.calculators.mopac import MOPAC
 from ase import Atoms
 
@@ -11,6 +12,8 @@ from dgl.data.utils import split_dataset
 import time
 
 from data_prep import *
+from dunn_prep import *
+from total_prep import *
 from model import *
 
 import wandb
@@ -21,14 +24,19 @@ def main():
     # Parameters
     data_split = 0.8
     batch_size = 16
-    epochs = 3000 
+    epochs = 5000 
     lr = 0.001
     mse = True
     mae = False
+    test_data = 'dunn'
 
-    knn = 3
-    coul_mat=False
-    message_pass = 1
+    knn = 4
+    coul_mat = False
+    model = 0
+    message_pass = 5
+    node_out_feats = 64
+    edge_hidden_feats = 128
+    n_tasks = 1
 
     # Creating Dataset
     graph_dataset = GraphDataset()
@@ -36,14 +44,14 @@ def main():
     print("Length of dataset:",len(graph_dataset))
     
     # Split and Batch Dataset
-    train, val, test = split_dataset(graph_dataset,[data_split,0,(1-data_split)])
-    trainloader = GraphDataLoader(train,batch_size=batch_size)
-    testloader = GraphDataLoader(test,batch_size=batch_size)
+    #train, val, test = split_dataset(graph_dataset,[data_split,0,(1-data_split)])
+    trainloader = GraphDataLoader(graph_dataset,batch_size=batch_size)
+    #testloader = GraphDataLoader(test,batch_size=batch_size)
     print("Batch size:", batch_size)
     #print("Length of Dataloader or Num of Batches:", len(dataloader))
     
     # Initialize Model
-    model = Model(1,1, num_step_message_passing=message_pass)  
+    model = Model(node_in_feats=1,edge_in_feats=1, node_out_feats=node_out_feats, edge_hidden_feats=edge_hidden_feats, n_tasks=n_tasks, num_step_message_passing=message_pass)  
 
     # Optimizer
     optimizer = torch.optim.Adam(model.parameters(),lr=lr)
@@ -59,9 +67,13 @@ def main():
     config_dict = dict(
         k_neighbors = knn,
         coul_mat = coul_mat,
+        model = model,
         message_pass = message_pass,
+        node_out_feats = node_out_feats,
+        edge_hidden_feats = edge_hidden_feats,
+        n_tasks = n_tasks,
         dataset_len = len(graph_dataset),
-        data_split = data_split,
+        test_data = test_data,
         batch_size = batch_size,
         epochs = epochs,
         learn_rate = lr,
@@ -71,11 +83,16 @@ def main():
                                                                         
     wandb.init(project="GinaHonors", entity="ginac",config=config_dict)
     
+    # FOR TEST LOOP
+    test_dataset = DunnGraphDataset()
+    test_dataset.process(knn, coul_mat=coul_mat)
+    testloader = GraphDataLoader(test_dataset,batch_size=batch_size)
+    
     print("Number of Epochs:", epochs, "\n")
     for epoch in tqdm(range(epochs)):
         # TRAIN
         #t0 = time.time()
-        #model.train()
+        model.train()
         running_loss = 0.
         for batch_x, batch_y in trainloader:
             optimizer.zero_grad()
@@ -98,6 +115,7 @@ def main():
         if epoch%10 == 0:
             model.eval()
             test_loss = 0.
+
             for batch_x, batch_y in testloader:
                 atoms = batch_x.ndata['energy']
                 edges = batch_x.edata['length']

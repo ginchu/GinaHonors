@@ -13,8 +13,8 @@ class GraphDataset(Dataset):
         self.graph = []
         for mol in iread('../Carbon_GAP_20/Carbon_GAP_20_Training_Set.xyz'):
             self.xyz.append(mol.get_positions())
-            self.E.append(mol.get_potential_energy())
-
+            self.E.append(mol.get_potential_energy())                             
+    
     def nearest_neighbors(self, g, m, k):
         '''
             g --> (3) one coordinate used as reference point
