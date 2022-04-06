@@ -11,18 +11,18 @@ class DunnGraphDataset(Dataset):
         self.xyz = []
         self.E = []
         self.graph = []
-        t = open("../test/filenames.txt", "r")
+        t = open("../dunn/filenames.txt", "r")
         test_files = t.read().split()
         for fn in test_files:
-            with open('../test/' + fn, 'r') as f:
+            with open('../dunn/' + fn, 'r') as f:
                 data = f.read()
             n_data = data.replace("Energy", "energy")
-            with open('../test/' + fn, 'w') as f:
+            with open('../dunn/' + fn, 'w') as f:
                 f.write(n_data)
-            mol = read('../test/' + fn)
+            mol = read('../dunn/' + fn)
             self.xyz.append(mol.get_positions())
             self.E.append(mol.get_potential_energy())
-            with open('../test/' + fn, 'w') as f:
+            with open('../dunn/' + fn, 'w') as f:
                 f.write(data)                              
                                                                     
     def nearest_neighbors(self, g, m, k):

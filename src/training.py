@@ -14,7 +14,7 @@ import time
 from data_prep import *
 from dunn_prep import *
 from total_prep import *
-from model import *
+from model_3 import *
 
 import wandb
 
@@ -25,14 +25,14 @@ def main():
     data_split = 0.8
     batch_size = 16
     epochs = 5000 
-    lr = 0.001
+    lr = 0.0005
     mse = True
     mae = False
-    test_data = 'dunn'
+    test_data = 'modified total'
 
     knn = 4
     coul_mat = False
-    model = 0
+    model = 3
     message_pass = 5
     node_out_feats = 64
     edge_hidden_feats = 128
@@ -87,7 +87,7 @@ def main():
     if test_data == 'dunn':
         test_dataset = DunnGraphDataset()
     elif test_data == 'modified total':
-        test_Dataset = TotalGraphDataset()
+        test_dataset = TotalGraphDataset()
     test_dataset.process(knn, coul_mat=coul_mat)
     testloader = GraphDataLoader(test_dataset,batch_size=batch_size)
     
