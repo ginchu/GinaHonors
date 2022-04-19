@@ -29,15 +29,18 @@ for i in range(0, 100*5, 5):
     count+=1                                                                
 print("Length of final test dataset:", count)                  
 
-
+'''
 for i in range(0, 100*5, 5):
     os.system("quip atoms_filename=xyz/" + str(i) + ".xyz param_filename=../Carbon_GAP_20/Carbon_GAP_20_potential/Carbon_GAP_20.xml E | grep -m1 'Energy=' | sed -n -e 's/^.*Energy=//p' >> quip_e.txt")
-
+    os.system('echo "' + str(i)+ '.xyz" >> quip_e.txt')
+'''
 q = open("quip_e.txt", "r")
 
 target = np.asarray(E)
-pred = np.asarray([float(j) for j in q.read().split()])
-
+qlist = q.read().split()
+pred = np.asarray([float(qlist[j]) for j in range(0,len(qlist),2)])
 loss = ((pred-target)**2).sum()
 
 print(loss/len(pred))
+
+q.close()
