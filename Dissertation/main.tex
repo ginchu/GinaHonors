@@ -1,4 +1,4 @@
-\documentclass[12pt]{scrartcl}
+\documentclass[12pt, abstract = true]{scrartcl}
 
 \usepackage{fullpage}
 \usepackage{graphicx}
@@ -16,7 +16,14 @@
 \newpage
 
 \begin{abstract}
-  Abstract...
+% Abstract: 1) the overall purpose 2) the basic method 3) result of analysis 4) interpretations and conclusions
+
+This paper proposes a machine learning method to model the potential energy surface of carbon structures with the following properties: polymorphic and physically-plausible. The model is polymorphic in that it models carbon structures regardless of the number of carbon atoms in the molecule. The model is physically-plausible because it is not dependent on the specific Cartesian coordinates of every single atom, making it invariant to translation, rotation, and permutation. 
+
+The design of this method starts with graph representation for every molecule with the edges holding the distances between an atom's nearest neighbors so that only the local environment is captured. It also uses a message passing graph neural network (MPGNN) which allows nodes to learn the data from neighboring nodes. This approach comes from how molecules are composed of structural units that are approximately constant, thus representing a molecule as a network of local "neighborhoods" produces local features that can be aggregated into producing higher-level features of the entire molecule. 
+
+The results show that the MPGNN is indeed learning the potential energy surface and is consistently improving as the number of message passing increases. A comparison between the MPGNN and a dummy regressor and an untrained MPGNN proves that the model is functioning as it should and is properly learning, but a comparison with the QUIP software shows that the MPGNN model still has room for improvement. The present work demonstrates a less costly approach to model the potential energy surface of carbon structures with a MPGNN, considering that current frameworks still have a high computational cost. The findings also show the potential for further improvement on the model and better future performance through even more fine tuning.
+  
 \end{abstract}
 
 \newpage
@@ -54,7 +61,7 @@ this, studying carbon can be difficult with conventional
 methods. Using Gaussian Approximation Potentials (GAP), machine
 learning can be much more cost and time efficient than traditional
 scientific methods of experimentation. Machine learning also opens up
-a new space of empirical methods for experiments that scientists
+a new space of methods for experiments that scientists
 cannot physically replicate with traditional techniques. For example,
 machine learning can be used for experiments in very small spatial
 scales or for large scale simulations all while maintaining high
@@ -93,7 +100,7 @@ structure which allows it to pair well with the material modeling approach.
 
 \begin{figure}
   \centering
-  \includegraphics[scale=.25]{atom.png}
+  \includegraphics[scale=.20]{atom.png}
   
   \caption{Model of an atom}\label{fig:atom}
 \end{figure}
@@ -132,12 +139,20 @@ as a \emph{wave function}, which generalizes the two position vectors to the inf
 positions in the three-dimensional space. This fundamental idea is why electrons are commonly 
 referred to as clouds.
 
+\begin{figure}
+  \centering
+  \includegraphics[scale=.4]{pes.png}
+  \includegraphics[scale=.4]{pes2.png}
+  
+  \caption{Example of a 3-D and 2-D PES. The top graph shows the z-axis representing the potential energy, red being the highest and violet being the lowest potential energy. The lower graph has the distance between two atoms as the x-axis and potential energy on the y-axis}\label{fig:pes}
+\end{figure}
+
 The laws of quantum mechanics also states that each observable, quantifiable, physical property that 
 an atomic object has is associated with a linear operator. The actual value of the quantity is given 
 by the eignevalues of the operator. One of the most important operators is the energy operator, called 
 the Hamiltonian, and its associated eigenvalue equation is called a Schrödinger equation. The energy of 
 a particular eigenstate as a function of the nuclear positions is called a \emph{potential energy surface}
-and it completely determines the dynamics of the motion of the atoms. The solution to this equation 
+and it completely determines the dynamics of the motion of the atoms. The potential energy surface is shown visually in figure \ref{fig:pes}. The solution to this equation 
 allows many electronic properties of both ground and excited states to be determined. The Schrödinger 
 equation can be mathematically solved for singular atoms but it gets more difficult for more complex molecules. 
 There are methods such as the density functional theory and the Hartree-Fock that try to 
@@ -146,13 +161,23 @@ costs make these methods practically inefficient. Once the Schrödinger equation
 properties such as atomization energy or dipole moment can be done through the eigenvalues and eigenstates.
 
 \subsubsection{QM Software} 
+
 Currently, there are programs used in computational chemistry to implement the methods mentioned above to 
 calculate properties.One software, called Vienna Ab initio Simulation Package or VASP, performs ab initio 
 quantum mechnical calculations and uses DFT as its base methodology. Another software package, called 
 QUantum Mechanics and Interatomic Potentials or QUIP\cite{quip}, has a collection of tools to conduct 
-molecular dynamics simulations and works with other external packages such as LAMMPS or ASE. This paper 
+molecular dynamics simulations and works with other external packages such as LAMMPS or ASE. An example run may look like something in figure \ref{fig:quip} where the QUIP command is executed on the command line using a referenced XYZ file. The XYZ file must in a format where the first line is the number of atoms and the second line is a series of key and value pairs which must have the Lattice key and Properties key. The typical output of a quip command can also be seen in figure \ref{fig:quip} where package information is printed out first and then the energy that QUIP predicts is returned. This paper 
 will use the QUIP software as reference calculations to experimental results. The Carbon GAP 20 
 potential\cite{gap20} will be used as the parameters in the QUIP calculations.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=.4]{quip.png}
+  \includegraphics[scale=.35]{quip4.png}
+  
+  \caption{A) is the QUIP command line. B) is the example.xyz file used in the A) command line with the required Lattice and Properties keyd. C) is the output of the QUIP command with the predicted energy highlighted. }\label{fig:quip}
+\end{figure}
+
 
 \newpage
 
@@ -220,21 +245,9 @@ the node is already holding and thus performs message passing throughout the con
 \newpage 
 
 \section{Method}
-\subsubsection{Training Dataset}\label{Train}
-%Carbon GAP 20 data
-The training data is from a dataset called Carbon GAP-20 Training Set\cite{gap20}. It contains 6,088 configurations of mostly crystalline carbon and some liquid and amorphous carbon with their respective atomization energies. As shown in figure \ref{fig:train}, the dataset is very comprehensive for all possible crystalline phases of carbon at moderate temperatures and pressures with the additional inclusion of more exotic allotropes. It also has DFT optimized structures for graphite, graphene, cubic and hexagonal diamond. 
+\subsubsection{Motivation}
+We are trying to model the pes or carbon molecule (mention other related work later and how they do it) not limited to how many atoms they havr. Invariance. Energy of molecule depends on local env and energy. Why graph representation and how its not a simple graph
 
-% Graph dataset
-This dataset of geometries is then turned into a graph dataset. For each atom in each molecule, four nearest neighbors are found and the distances are calculated to that atom. Once the the distances for the four nearest neighbors of each atom is found, it is used to create a DGL\cite{dgl} graph that represents the whole molecule where the edge features of the graph contain the distance information. This method of representation uses the local environment of each atom to describe a whole molecule and determine its energy. This representation is both rotation and translation invariant. This is because the distance between these atoms do not change if rotated or translated, thus it does not depend on its specific Cartesian location.
-
-\begin{figure}
-  \centering
-  \includegraphics[scale=2]{carbon}
-  
-  \caption{Map of the training data with some of the key structures (top). Summary of predicted formation energies, defect formation energies, and surface energies of crystalline carbon (bottom)}\label{fig:train}
-\end{figure}
-
-\newpage
 \subsubsection{Model} 
 % Model
 The model uses the python package DGL-LifeSci\cite{dgllife} which allows an easy integration of tasks in 
@@ -256,6 +269,32 @@ before "hydrogen 1" in the model. This model is permutation invariant because no
 between each other and are learning from local graph information through message passing. Message passing 
 allows the nodes not to be dependent on a particular input and its order.
 
+
+
+
+\newpage
+
+\section{Experimental Evaluation}
+\subsubsection{Training Dataset}\label{Train}
+%Carbon GAP 20 data
+The data that is used comes from a database of configurations called Carbon Data Set Total\cite{gap20}. For the model to be accurate and transferable, the database represents a reduced subset of all available configurations from the thermally accessible chemical space. The molecular properties were computed using the same level of tightly converged plane-wave DFT including dispersion corrections. The VASP plane-wave DFT code was used to perform spin-polarized calculations with the optB88-vdW dispersion inclusive exchange–correlation functional, a plane-wave cutoff of 600 eV, and a projector augmented wave pseudopotential. In addition, dense reciprocal space Monkhorst-Pack grids were used, along with a Gaussian smearing of 0.1 eV, applied to the energy levels. Some \emph{ab initio} and iteratively improved GAP driven molecular dynamics simulations have been performed for all of these structures at a number of temperatures. 
+
+This comprehensive database contains approximately 17,000 configurations, which is too large to conduct training at a reasonable computational cost. A subset of this database, called Carbon GAP 20 Training set, was chosen to use in training through the farthest point sampling method. After that, data saturation of this sampling was checked to ensure that this new training dataset was as comprehensive as the full database. The training data contains 6,088 configurations of mostly crystalline carbon and some liquid and amorphous carbon with their respective properties. As shown in figure \ref{fig:train}, the full database is very comprehensive for all possible crystalline phases of carbon at moderate temperatures and pressures with the additional inclusion of more exotic allotropes. 
+
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=2]{carbon}
+  
+  \caption{Map of the training data with some of the key structures (top). Summary of predicted formation energies, defect formation energies, and surface energies of crystalline carbon (bottom).}\label{fig:train}
+\end{figure}
+
+
+% Graph dataset
+This dataset of geometries is then turned into a graph dataset. For each atom in each molecule, four nearest neighbors are found and the distances are calculated to that atom. Once the the distances for the four nearest neighbors of each atom is found, it is used to create a DGL\cite{dgl} graph that represents the whole molecule where the edge features of the graph contain the distance information. This method of representation uses the local environment of each atom to describe a whole molecule and determine its energy. This representation is both rotation and translation invariant. This is because the distance between these atoms do not change if rotated or translated, thus it does not depend on its specific Cartesian location.
+
+
+
 \subsubsection{Test Dataset} 
 % DUNN and Modified Total
 Two datasets are used to test the performance of the model. One dataset contains carbon allotropes of monolayer graphene, bilayer graphene, graphite, and diamond with their DFT energies calculated using VASP. For simplicity, this dataset will be called the DUNN dataset for it was originally used to develop a Dropout Uncertainty Neural Network potential\cite{dunn}. The second test set comes from the source of the training set. That paper\cite{gap20} provides two datasets where the training set is a subset of the total dataset of carbon configurations. The training data was removed from the total dataset to create a Modified Total dataset to test on. The graph dataset versions of these test sets are created the same way the training graph dataset was made, referenced in section \ref{Train}. 
@@ -263,10 +302,6 @@ Two datasets are used to test the performance of the model. One dataset contains
 % Dummy, Untrained, and QUIP
 Three other measurements were made to additionally evaluate the model performance. The first measurement uses the dummy regressor from Scikit-learn to make predictions and calculate its mean squared error (MSE) on both the DUNN and Modified Total test set. The second measurement uses the untrained version of the model to directly calculate predictions and MSE for both test sets to see how the model performs without any learning. The third measurement uses the QUIP software and the GAP 20 potential\cite{gap20} to calculate energies and MSE on both test sets once again. This measurement will allow the direct comparison of the cited research's results with this paper's results.
 
-
-\newpage
-
-\section{Experimental Evaluation}
 \subsubsection{Results} 
 Experiments were started with 1 and 3 rounds of message passing with a batch size of 16, learning rate of 0.001, and 4 nearest neighbors. Those runs were not training the model as well as it could have because they had very unstable train and test losses. The next stage of runs increased the number of message passing to 5 but those as well had unstable test losses even when the train losses were stable. 
 
@@ -276,47 +311,75 @@ Because of this, the next round of runs kept the number of message passing at 5 
 
 First, the results clearly show that the model is training. All the experiments produce an MSE lower than the untrained model for both test sets which shows that the model is working. Almost all the runs also have an MSE lower than the dummy regressor baseline which proves it is learning better than a predictor with a simple strategy. The runs compared to themselves also show that the model is definitely getting better as the parameters are adjusted because the MSE is lowering at several magnitudes between each other.
 
+
 % graph
 \begin{figure}
   \centering
-  \includegraphics[scale=.75]{graph.png}
+  \includegraphics[scale=.35]{test.png}
+  \includegraphics[scale=.35]{best.png}
   
-  \caption{wandb, place holder}\label{fig:graph}
+  \caption{Upper graph shows the MSE test losses for each of the six runs. Lower graph shows the update the best MSE losses for each of the six runs.}\label{fig:graph}
 \end{figure}
 
-\begin{center}
-    \begin{tabular}{|p{2cm}||p{2.5cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|}
+\begin{table}
+    \centering
+    \begin{tabular}{|p{3cm}||p{2cm}|p{2cm}|p{2cm}|p{2cm}|}
     \hline
-    \multicolumn{6}{|c|}{DUNN Dataset} \\
+    \multicolumn{5}{|c|}{Parameters} \\
     \hline
-    Run  & MSE (ev) & Message Passing & Learning Rate & Batch Size & Nearest Neighbor\\
+    Run & Learning Rate & Message Passing & Batch Size & Nearest Neighbor\\
     \hline
-    QUIP   & 45.256 &   &  &  &\\
-    1   & 1,655.831 & 0.0005 & 5 & 16 & 4\\
-    2 & 18,836.808 & 0.0001 & 5 & 32 & 4\\
-    Dummy & 25,620.847 &   &  &  & \\
-    3    & 43,933.238 & 0.0005 & 7 & 32 & 4\\
-    Untrained & 228,335.155 & 0.0005 & 5 & & 4\\
+    1 & 0.0005 & 5 & 16 & 4\\
+    2 & 0.0005 & 7 & 32 & 4\\    
+    3 & 0.0001 & 5 & 32 & 4\\
+    Untrained (DUNN) & 0.0005 & 5 & & 4\\
+    4 & 0.0005 & 5 & 16 & 4\\
+    5 & 0.0005 & 7 & 32 & 4\\
+    6 & 0.0001 & 5 & 32 & 4\\
+    Untrained (Modified Total) & 0.0005 & 5 & & 4\\
     \hline
+    
     \end{tabular}
-\end{center}
+    \caption{Table of the differences in parameters between the six runs}\label{tab:param}
+\end{table}
 
-\begin{center}
-    \begin{tabular}{|p{2cm}||p{2.5cm}|p{2cm}|p{2cm}|p{2cm}|p{2cm}|}
+\begin{table}
+    \centering
+    \begin{tabular}{p{3cm}|p{3cm}}
     \hline
-    \multicolumn{6}{|c|}{Modified Total Dataset} \\
+    \multicolumn{2}{|c|}{DUNN Dataset} \\
     \hline
-    Run  & MSE (ev) & Message Passing & Learning Rate & Batch Size & Nearest Neighbor\\
+    Run  & MSE (ev)\\
     \hline
-    QUIP   & 16.989 &   &  &  &\\
-    1   & 3,388.47 & 0.0005 & 5 & 16 & 4\\
-    2 & 7,583.152 & 0.0005 & 7 & 32 & 4\\
-    3    & 8,438.149 & 0.0001 & 5 & 32 & 4\\
-    Dummy & 191,405.849 &   &  &  & \\
-    Untrained & 418,529.850 & 0.0005 & 5 & & 4\\
+    QUIP   & 45.256\\
+    1   & 1,655.831\\
+    2    & 2,516.364\\
+    3 & 18,836.808\\
+    Dummy & 25,620.847\\
+    Untrained & 228,335.155\\
     \hline
     \end{tabular}
-\end{center}
+    \caption{Table of the MSE of the runs done with the DUNN dataset.}\label{tab:dunn}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular}{p{3cm}|p{3cm}}
+    \hline
+    \multicolumn{2}{|c|}{Modified Total Dataset} \\
+    \hline
+    Run  & MSE (ev)\\
+    \hline
+    QUIP   & 16.989 \\
+    4   & 3,388.47 \\
+    5 & 7,583.152 \\
+    6    & 8,438.149\\
+    Dummy & 191,405.849 \\
+    Untrained & 418,529.850\\
+    \hline
+    \end{tabular}
+    \caption{Table of the MSE of the runs done with the Modified Total dataset.}\label{tab:total}
+\end{table}
 
 
 
