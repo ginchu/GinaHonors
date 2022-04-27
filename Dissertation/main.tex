@@ -245,8 +245,15 @@ the node is already holding and thus performs message passing throughout the con
 \newpage 
 
 \section{Method}
-\subsubsection{Motivation}
-We are trying to model the pes or carbon molecule (mention other related work later and how they do it) not limited to how many atoms they havr. Invariance. Energy of molecule depends on local env and energy. Why graph representation and how its not a simple graph
+In this paper, the goal is to model the potential energy surface of carbon molecules through machine learning. The challenge is to have the model not be limited to the number of atoms each molecule has and that it is invariant to translation, rotation, and permutation. This paper's approach takes advantage of the fact that a molecule is made up of consistent structural units to create a network made up of all the local "neighborhoods" of the molecule. This graph representation allows the energy of the whole molecule to be found through local environment information.
+
+Several current research papers of similar domains tend to use a Gaussian Approximation Potential (GAP) to model molecules. The GAP framework allows training with first-principles calculations at a significantly reduced cost with similar predictive quality. (mention example paperS) Even though these GAP frameworks are transferable and show good performance, its downside lies in its O(N3) computational cost, even though it is better than other previous methods of molecular simulations. In addition, not all kinds of configurations can be represented by GAP. This paper proposes a more cost effective technique to emulate what GAPs are doing to model the potential energy surface of carbon structures.
+
+https://aip.scitation.org/doi/full/10.1063/5.0035438
+
+https://aip.scitation.org/doi/full/10.1063/5.0027643
+
+https://aip.scitation.org/doi/10.1063/5.0005084
 
 \subsubsection{Model} 
 % Model
@@ -384,12 +391,13 @@ First, the results clearly show that the model is training. All the experiments 
 
 
 \subsubsection{Suggestions} 
-working on the hyperparameters more
+
+The present work demonstrates a less costly approach to model the potential energy surface of carbon structures with a MPGNN, considering that current frameworks still have a high computational cost. The findings also show the potential for further improvement on the model and better future performance through even more fine tuning.
+
+working on the hyperparameters more, activation funtions, dropout, even higher num of message passing
 
 exploring hypergraphs where you use ternary edges to represent angles
-\newpage
 
-\section{Conclusion}
 
 \newpage
 
