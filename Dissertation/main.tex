@@ -3,9 +3,10 @@
 \usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{setspace}
+\usepackage{cite}
 \doublespacing
 
-\title{Honors Thesis}
+\title{Polymorphic Modelling the Potential Energy Surface of Carbon Systems using Graph Neural Networks}
 \author{Gina Chun}
 
 
@@ -18,7 +19,7 @@
 \begin{abstract}
 % Abstract: 1) the overall purpose 2) the basic method 3) result of analysis 4) interpretations and conclusions
 
-This paper proposes a machine learning method to model the potential energy surface of carbon structures with the following properties: polymorphic and physically-plausible. The model is polymorphic in that it models carbon structures regardless of the number of carbon atoms in the molecule. The model is physically-plausible because it is not dependent on the specific Cartesian coordinates of every single atom, making it invariant to translation, rotation, and permutation. 
+We present a machine learning method to model the potential energy surface of carbon structures with the following properties: polymorphic and physically-plausible. The model is polymorphic in that it models carbon structures regardless of the number of carbon atoms in the molecule. The model is physically-plausible because it is not dependent on the specific Cartesian coordinates of every single atom, making it invariant to translation, rotation, and permutation. 
 
 The design of this method starts with graph representation for every molecule with the edges holding the distances between an atom's nearest neighbors so that only the local environment is captured. It also uses a message passing graph neural network (MPGNN) which allows nodes to learn the data from neighboring nodes. This approach comes from how molecules are composed of structural units that are approximately constant, thus representing a molecule as a network of local "neighborhoods" produces local features that can be aggregated into producing higher-level features of the entire molecule. 
 
@@ -36,36 +37,46 @@ The results show that the MPGNN is indeed learning the potential energy surface 
 
 \subsection{Why Carbon is Important}
 
-% In this section to say blah
-
 Carbon is one of the most important and widely investigated
 elements. Carbon is all around us in a variety of forms and is an area
 of study which has huge significance across many scientific fields and
 applications. Carbon is in living organisms and is essential for
-living organisms, thus the study of carbon would further develop the
-complex workings of the environment, ecosystems and the carbon
-cycle. It would also help the understanding of fossil fuels, aid the
-challenges of energy-related issues, and work towards solutions for
-climate change. Carbon materials are also intertwined in modern
-economic industries such as in steel, clothing, pigment, plastic and
-synthetic materials, and in electrodes and other similar electricity
-conducting machinery. Studying carbon allows for further advancement
-in these important industries which would lead to better and more
-easily accessible devices, tools, and products for general society.
+living organisms, thus the study of carbon would further develop the understanding of the
+complex workings of the environment and ecosystems. It would also help the understanding of 
+fossil fuels, aid the challenges of energy-related issues, and work towards solutions for
+climate change. Carbon materials are also intertwined in modern industries and technologies 
+such as in steel, clothing, synthetic materials, and even in the silicon microchips in smartphones. 
+A better understanding of carbon will lead to advancement in technology and more innovation. 
+This can in turn lead to general increase in the quality of living, not just in the US but also 
+in other countries as well, which is important for people and communities in need for more easily accessible technology. 
+Not only will these technologies be cheaper, their advancement will also make 
+them more sustainable, eco-friendly, and ethical as well.
+
+To better understand carbon, studying the energy of different carbon molecules is very important. 
+Knowing the potential energy of a carbon structure will allow us to derive other important properties 
+of that carbon molecule. Being able to easily predict the potential energy can help unlock much more 
+information on carbon, but is currently difficult because of all the different configurations carbon 
+can be in. Carbon has such vast structural diversity which makes it particularly arduous to study but 
+also that more important to study as well.
+
 
 \subsection{Why Use Machine Learning}
 As carbon is an important element, its versatility makes it a very
 complex subject of study. Carbon manifests in various physical forms,
 called allotropes, each with very different properties. Because of
-this, studying carbon can be difficult with conventional
-methods. Using Gaussian Approximation Potentials (GAP), machine
-learning can be much more cost and time efficient than traditional
-scientific methods of experimentation. Machine learning also opens up
-a new space of methods for experiments that scientists
-cannot physically replicate with traditional techniques. For example,
-machine learning can be used for experiments in very small spatial
+this, studying carbon can be difficult and very expensive with conventional
+methods. Machine learning can be much more cost and time efficient than traditional
+scientific methods of experimentation. It also opens up a new space of methods for 
+experiments that scientists cannot physically replicate with traditional techniques. 
+For example, machine learning can be used for experiments in very small spatial
 scales or for large scale simulations all while maintaining high
-performance accuracy.
+performance accuracy. It also allows researchers to take advantage of similarities 
+between certain physical systems and learning systems, such as neural networks, to be 
+able to model these systems and to also just learn more about areas that are difficult 
+to model otherwise such as quantum mechanics. Current theories and equations in quantum 
+mechanics can calculate energy for a singular atom but it becomes increasingly difficult 
+for complex molecules. Thus the application of machine learning and neural networks 
+can greatly help the complex and costly study of carbon with all of its various geometries.
 
 \newpage
 
@@ -98,12 +109,6 @@ an organized repetitive pattern so it is sufficient enough to look at just a pat
 Studying the properties of a microscopic structure, in general, translates well to its macroscopic 
 structure which allows it to pair well with the material modeling approach.
 
-\begin{figure}
-  \centering
-  \includegraphics[scale=.20]{atom.png}
-  
-  \caption{Model of an atom}\label{fig:atom}
-\end{figure}
 
 % molecular \& material properties: Electronic properties (for hard degrees of freedom, crystalline)
 % Born–Oppenheimer approximation, ground state, atomization energy
@@ -123,7 +128,7 @@ detail later. To give a general overview, the electronic cloud can be in certain
 such as its lowest-energy state called the \emph{ground state}. Some ground state properties include the atomization energy, which is the energy released when a molecule is formed, and the 
 dipole moment and polarizability, which describes the shape and responsiveness of the
 cloud. Since thermodynamic properties can be more easily derived through knowing the electronic 
-properties first, this paper and its method will be predicting ground-state electronic properties 
+properties first, we will be predicting ground-state electronic properties 
 so that is what the background will be focused on. 
 
 
@@ -144,7 +149,7 @@ referred to as clouds.
   \includegraphics[scale=.4]{pes.png}
   \includegraphics[scale=.4]{pes2.png}
   
-  \caption{Example of a 3-D and 2-D PES. The top graph shows the z-axis representing the potential energy, red being the highest and violet being the lowest potential energy. The lower graph has the distance between two atoms as the x-axis and potential energy on the y-axis}\label{fig:pes}
+  \caption{Example of a 3-D and 2-D PES. The top graph shows the z-axis representing the potential energy, red being the highest and violet being the lowest potential energy. The lower graph has the distance between two atoms as the x-axis and potential energy on the y-axis. Image source from LibreTexts\cite{pesimage}}\label{fig:pes}
 \end{figure}
 
 The laws of quantum mechanics also states that each observable, quantifiable, physical property that 
@@ -152,13 +157,12 @@ an atomic object has is associated with a linear operator. The actual value of t
 by the eignevalues of the operator. One of the most important operators is the energy operator, called 
 the Hamiltonian, and its associated eigenvalue equation is called a Schrödinger equation. The energy of 
 a particular eigenstate as a function of the nuclear positions is called a \emph{potential energy surface}
-and it completely determines the dynamics of the motion of the atoms. The potential energy surface is shown visually in figure \ref{fig:pes}. The solution to this equation 
-allows many electronic properties of both ground and excited states to be determined. The Schrödinger 
-equation can be mathematically solved for singular atoms but it gets more difficult for more complex molecules. 
-There are methods such as the density functional theory and the Hartree-Fock that try to 
-solve this issue by manipulating the Hamiltonian or the vector space itself, but their computational 
-costs make these methods practically inefficient. Once the Schrödinger equation is solved, evaluating 
-properties such as atomization energy or dipole moment can be done through the eigenvalues and eigenstates.
+and it completely determines the dynamics of the motion of the atoms. The potential energy surface is shown visually in figure \ref{fig:pes}. The solution to this equation  allows many electronic properties of both 
+ground and excited states to be determined. The Schrödinger equation can be mathematically solved for 
+singular atoms but it gets more difficult for more complex molecules. There are methods such as the density 
+functional theory and the Hartree-Fock that try to solve this issue by manipulating the Hamiltonian or the vector space itself, but their computational costs make these methods practically inefficient. Once the Schrödinger 
+equation is solved, evaluating properties such as atomization energy or dipole moment can be done 
+through the eigenvalues and eigenstates.
 
 \subsubsection{QM Software} 
 
@@ -227,9 +231,9 @@ a feature vector for the whole graph.
 % Graph convolution
 \begin{figure}
   \centering
-  \includegraphics[scale=.75]{mpnn.png}
+  \includegraphics[scale=1.75]{mpnn.jpeg}
   
-  \caption{Simple example of message passing in a graph}\label{fig:mpnn}
+  \caption{Simple example of message passing in a graph. Image is author's own image}\label{fig:mpnn}
 \end{figure}
 
 A specific way to carry out message passing is by using graph convolutions. Just like in convolutional 
@@ -245,15 +249,9 @@ the node is already holding and thus performs message passing throughout the con
 \newpage 
 
 \section{Method}
-In this paper, the goal is to model the potential energy surface of carbon molecules through machine learning. The challenge is to have the model not be limited to the number of atoms each molecule has and that it is invariant to translation, rotation, and permutation. This paper's approach takes advantage of the fact that a molecule is made up of consistent structural units to create a network made up of all the local "neighborhoods" of the molecule. This graph representation allows the energy of the whole molecule to be found through local environment information.
+Our goal is to model the potential energy surface of carbon molecules through machine learning. The challenge is to have the model not be limited to the number of atoms each molecule has and that it is invariant to translation, rotation, and permutation. Our approach takes advantage of the fact that a molecule is made up of consistent structural units to create a network made up of all the local "neighborhoods" of the molecule. This graph representation allows the energy of the whole molecule to be found through local environment information.
 
-Several current research papers of similar domains tend to use a Gaussian Approximation Potential (GAP) to model molecules. The GAP framework allows training with first-principles calculations at a significantly reduced cost with similar predictive quality. (mention example paperS) Even though these GAP frameworks are transferable and show good performance, its downside lies in its O(N3) computational cost, even though it is better than other previous methods of molecular simulations. In addition, not all kinds of configurations can be represented by GAP. This paper proposes a more cost effective technique to emulate what GAPs are doing to model the potential energy surface of carbon structures.
-
-https://aip.scitation.org/doi/full/10.1063/5.0035438
-
-https://aip.scitation.org/doi/full/10.1063/5.0027643
-
-https://aip.scitation.org/doi/10.1063/5.0005084
+Several current research papers\cite{ex1,ex2,gap20} of similar domains tend to use a Gaussian Approximation Potential (GAP) to model molecules. The GAP framework allows training with first-principles calculations at a significantly reduced cost with similar predictive quality. (mention example paperS) Even though these GAP frameworks are transferable and show good performance, its downside lies in its $O(N^3)$ computational cost, even though it is better than other previous methods of molecular simulations. In addition, not all kinds of configurations can be represented by GAP. We propose a more cost effective technique to emulate what GAPs are doing to model the potential energy surface of carbon structures.
 
 \subsubsection{Model} 
 % Model
@@ -293,7 +291,7 @@ This comprehensive database contains approximately 17,000 configurations, which 
   \centering
   \includegraphics[scale=2]{carbon}
   
-  \caption{Map of the training data with some of the key structures (top). Summary of predicted formation energies, defect formation energies, and surface energies of crystalline carbon (bottom).}\label{fig:train}
+  \caption{Map of the training data with some of the key structures (top). Summary of predicted formation energies, defect formation energies, and surface energies of crystalline carbon (bottom). Image source from GAP20\cite{gap20}}\label{fig:train}
 \end{figure}
 
 
@@ -310,23 +308,6 @@ Two datasets are used to test the performance of the model. One dataset contains
 Three other measurements were made to additionally evaluate the model performance. The first measurement uses the dummy regressor from Scikit-learn to make predictions and calculate its mean squared error (MSE) on both the DUNN and Modified Total test set. The second measurement uses the untrained version of the model to directly calculate predictions and MSE for both test sets to see how the model performs without any learning. The third measurement uses the QUIP software and the GAP 20 potential\cite{gap20} to calculate energies and MSE on both test sets once again. This measurement will allow the direct comparison of the cited research's results with this paper's results.
 
 \subsubsection{Results} 
-Experiments were started with 1 and 3 rounds of message passing with a batch size of 16, learning rate of 0.001, and 4 nearest neighbors. Those runs were not training the model as well as it could have because they had very unstable train and test losses. The next stage of runs increased the number of message passing to 5 but those as well had unstable test losses even when the train losses were stable. 
-
-% graph of unstable runs?
-
-Because of this, the next round of runs kept the number of message passing at 5 but lowered the learning rate and varied the batch size. 
-
-First, the results clearly show that the model is training. All the experiments produce an MSE lower than the untrained model for both test sets which shows that the model is working. Almost all the runs also have an MSE lower than the dummy regressor baseline which proves it is learning better than a predictor with a simple strategy. The runs compared to themselves also show that the model is definitely getting better as the parameters are adjusted because the MSE is lowering at several magnitudes between each other.
-
-
-% graph
-\begin{figure}
-  \centering
-  \includegraphics[scale=.35]{test.png}
-  \includegraphics[scale=.35]{best.png}
-  
-  \caption{Upper graph shows the MSE test losses for each of the six runs. Lower graph shows the update the best MSE losses for each of the six runs.}\label{fig:graph}
-\end{figure}
 
 \begin{table}
     \centering
@@ -349,6 +330,22 @@ First, the results clearly show that the model is training. All the experiments 
     \end{tabular}
     \caption{Table of the differences in parameters between the six runs}\label{tab:param}
 \end{table}
+
+Experiments were started with 1 and 3 rounds of message passing with a batch size of 16, learning rate of 0.001, and 4 nearest neighbors. For those runs, the model was overfitting the training data because the train loss was gradually decrease while the test loss was unstable. We then just increased the number of message passing to 5 but those as well had unstable test losses even when the train losses were very stable. Because of this, we kept the number of message passing at 5 but lowered the learning rate and varied the batch size. Once both train and test losses seemed to gradually decrease, we also ran some experiments with the message passing set to 7. The specifications of the experiments done with message passing of 5 and 7 can be seen in Table \ref{tab:param} and the graphs of their MSE can be seen in Figure \ref{fig:graph}.
+
+First, the results clearly show that the model is able to train. All the experiments produce an MSE lower than the untrained model for both test sets which shows that the model is working. All the runs also have an MSE lower than the dummy regressor baseline which proves it is learning better than a predictor with a simple strategy. The model is definitely able to learn the potential energy surface because its train and test losses are consistently improving and becoming more stable as the number of message passing increases. The runs with the same number of message passing also improve compared to each other as other parameters are adjusted because the MSE is lowering at several magnitudes between each other as seen in Table \ref{tab:dunn} and Table \ref{tab:total}.
+
+Even though our test datasets come from different sources, the model seems to improve and learn those datasets in a similar way which can be seen by comparing Table \ref{tab:dunn}, Table \ref{tab:total}, and Table \ref{tab:param}. This demonstrates the transferable, polymorphic, and physically-plausible properties of the model. However, the MSE of the QUIP software is still considerably lower than any of the experiments with the MPGNN model which shows that there is still room for improvement to the model. The decreasing losses of the MPGNN model experiments show the possibility for further improvement and better future performance through even more fine tuning of the model. Since the MPGNN model was able to learn the potential energy surface of carbon molecules, it can still be proposed as a much less costly approach to polymophic modelling compared to current GAP frameworks. 
+
+
+% graph
+\begin{figure}
+  \centering
+  \includegraphics[scale=.35]{test.png}
+  \includegraphics[scale=.35]{best.png}
+  
+  \caption{Upper graph shows the MSE test losses for each of the six runs. Lower graph shows the update the best MSE losses for each of the six runs.}\label{fig:graph}
+\end{figure}
 
 \begin{table}
     \centering
@@ -392,11 +389,7 @@ First, the results clearly show that the model is training. All the experiments 
 
 \subsubsection{Suggestions} 
 
-The present work demonstrates a less costly approach to model the potential energy surface of carbon structures with a MPGNN, considering that current frameworks still have a high computational cost. The findings also show the potential for further improvement on the model and better future performance through even more fine tuning.
-
-working on the hyperparameters more, activation funtions, dropout, even higher num of message passing
-
-exploring hypergraphs where you use ternary edges to represent angles
+Our findings open up the potential for more improvement in future work and experimentation. Adjustments to hyperparameters, trying different activation functions in the model, and using even higher numbers of message passing would be ways to further continue the study of this MPGNN model. Another suggestion could be to change the graph representation to a hypergraph representation where an edge can join any number of vertices unlike in a traditional graph where each edge connects exactly two vertices. If the ternary edges contained angle information between atoms, the model would have even more information, distances and angles of nearest neighbors, to learn the potential energy surface. The message passing portion of the model would be able to learn about surrounding nodes even better with the additional information they hold. The many possibilities for future research demonstrate the potential capability of the MPGNN model and further validate it as an inexpensive viable approach to modelling carbon structures.
 
 
 \newpage
