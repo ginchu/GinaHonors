@@ -167,17 +167,16 @@ through the eigenvalues and eigenstates.
 \subsubsection{QM Software} 
 
 Currently, there are programs used in computational chemistry to implement the methods mentioned above to 
-calculate properties.One software, called Vienna Ab initio Simulation Package or VASP, performs ab initio 
+calculate properties. One software, called Vienna Ab initio Simulation Package or VASP, performs ab initio 
 quantum mechnical calculations and uses DFT as its base methodology. Another software package, called 
 QUantum Mechanics and Interatomic Potentials or QUIP\cite{quip}, has a collection of tools to conduct 
-molecular dynamics simulations and works with other external packages such as LAMMPS or ASE. An example run may look like something in figure \ref{fig:quip} where the QUIP command is executed on the command line using a referenced XYZ file. The XYZ file must in a format where the first line is the number of atoms and the second line is a series of key and value pairs which must have the Lattice key and Properties key. The typical output of a quip command can also be seen in figure \ref{fig:quip} where package information is printed out first and then the energy that QUIP predicts is returned. This paper 
-will use the QUIP software as reference calculations to experimental results. The Carbon GAP 20 
-potential\cite{gap20} will be used as the parameters in the QUIP calculations.
+molecular dynamics simulations and works with other external packages such as LAMMPS or ASE. An example run may look like something in Figure \ref{fig:quip} where the QUIP command is executed on the command line using a referenced XYZ file. The XYZ file must in a format where the first line is the number of atoms and the second line is a series of key and value pairs which must have the Lattice key and Properties key. The typical output of a QUIP command can also be seen in Figure \ref{fig:quip} where package information is printed out first and then the energy that QUIP predicts is returned. We will be using the QUIP software as reference calculations to experimental results. 
+The Carbon GAP 20 potential\cite{gap20} will be used as the parameters in the QUIP calculations.
 
 \begin{figure}
   \centering
-  \includegraphics[scale=.4]{quip.png}
-  \includegraphics[scale=.35]{quip4.png}
+  \includegraphics[scale=.5]{quip.png}
+  \includegraphics[scale=.5]{quip4.png}
   
   \caption{A) is the QUIP command line. B) is the example.xyz file used in the A) command line with the required Lattice and Properties keyd. C) is the output of the QUIP command with the predicted energy highlighted. }\label{fig:quip}
 \end{figure}
@@ -195,7 +194,7 @@ these molecules as a graph. The atoms are the nodes and the bonds are the undire
 there are three types of prediction tasks that are done on graphs: graph-level, node-level, and edge-level. 
 Graph-level approaches predict a single property for a whole graph while a node-level approach predicts 
 a property for each node in the graph. Edge-level approaches predict the property or existence of edges 
-in a particular graph. This paper focuses on the graph-level task of predicting the energy of carbon 
+in a particular graph. We will be focusing on the graph-level task of predicting the energy of carbon 
 molecules. 
 
 % integrating graphs in neural networks (matrices, adjacency lists)
@@ -203,7 +202,7 @@ Integrating these graphs into machine learning models will depend on how they ar
 An obvious representation method would be the adjacency matrix since it captures the graph's connectivity. 
 However, the more nodes there are, the more space-inefficient the adjacency matrix becomes and in addition,
 the adjacency matrix of a molecule is not unique. There are many different ways to express the same 
-connectivity with these matrices which causes the model to be permutation invariant since it will see 
+connectivity with these matrices which causes the model to be permutation variant since it will see 
 these matrices as different molecules when they are actually the same. A better memory-efficient representation 
 is adjacency lists where each item in this list describes the connection between just two nodes. This cuts out 
 a lot of the parts of the graph that are disconnected that would be needlessly recorded in an adjacency matrix.
@@ -233,7 +232,7 @@ a feature vector for the whole graph.
   \centering
   \includegraphics[scale=1.75]{mpnn.jpeg}
   
-  \caption{Simple example of message passing in a graph. Image is author's own image}\label{fig:mpnn}
+  \caption{Simple example of message passing in a graph. Image is author's own image.}\label{fig:mpnn}
 \end{figure}
 
 A specific way to carry out message passing is by using graph convolutions. Just like in convolutional 
@@ -249,9 +248,9 @@ the node is already holding and thus performs message passing throughout the con
 \newpage 
 
 \section{Method}
-Our goal is to model the potential energy surface of carbon molecules through machine learning. The challenge is to have the model not be limited to the number of atoms each molecule has and that it is invariant to translation, rotation, and permutation. Our approach takes advantage of the fact that a molecule is made up of consistent structural units to create a network made up of all the local "neighborhoods" of the molecule. This graph representation allows the energy of the whole molecule to be found through local environment information.
+Our goal is to model the potential energy surface of carbon molecules through machine learning. The challenge is to have the model not be limited to the number of atoms each molecule has and that it is invariant to translation, rotation, and permutation. Our approach takes advantage of the fact that a molecule is made up of consistent structural units to create a network made up of all the local "neighborhoods" of the molecule. Our graph representation allows the energy of the whole molecule to be found through local environment information, which will be described in more detail in section \ref{Train}.
 
-Several current research papers\cite{ex1,ex2,gap20} of similar domains tend to use a Gaussian Approximation Potential (GAP) to model molecules. The GAP framework allows training with first-principles calculations at a significantly reduced cost with similar predictive quality. (mention example paperS) Even though these GAP frameworks are transferable and show good performance, its downside lies in its $O(N^3)$ computational cost, even though it is better than other previous methods of molecular simulations. In addition, not all kinds of configurations can be represented by GAP. We propose a more cost effective technique to emulate what GAPs are doing to model the potential energy surface of carbon structures.
+Several current research work\cite{ex1,ex2,gap20} of similar domains tend to use a Gaussian Approximation Potential (GAP) to model molecules. The GAP framework allows training with first-principles calculations at a significantly reduced cost with similar predictive quality. Even though these GAP frameworks are transferable and show good performance, its downside lies in its $O(N^3)$ computational cost, even though it is better than other previous methods of molecular simulations. In addition, not all kinds of configurations can be represented by GAP. We propose a message passing graph neural network as a more cost effective technique to emulate what GAPs are doing to model the potential energy surface of carbon structures.
 
 \subsubsection{Model} 
 % Model
@@ -284,7 +283,7 @@ allows the nodes not to be dependent on a particular input and its order.
 %Carbon GAP 20 data
 The data that is used comes from a database of configurations called Carbon Data Set Total\cite{gap20}. For the model to be accurate and transferable, the database represents a reduced subset of all available configurations from the thermally accessible chemical space. The molecular properties were computed using the same level of tightly converged plane-wave DFT including dispersion corrections. The VASP plane-wave DFT code was used to perform spin-polarized calculations with the optB88-vdW dispersion inclusive exchange–correlation functional, a plane-wave cutoff of 600 eV, and a projector augmented wave pseudopotential. In addition, dense reciprocal space Monkhorst-Pack grids were used, along with a Gaussian smearing of 0.1 eV, applied to the energy levels. Some \emph{ab initio} and iteratively improved GAP driven molecular dynamics simulations have been performed for all of these structures at a number of temperatures. 
 
-This comprehensive database contains approximately 17,000 configurations, which is too large to conduct training at a reasonable computational cost. A subset of this database, called Carbon GAP 20 Training set, was chosen to use in training through the farthest point sampling method. After that, data saturation of this sampling was checked to ensure that this new training dataset was as comprehensive as the full database. The training data contains 6,088 configurations of mostly crystalline carbon and some liquid and amorphous carbon with their respective properties. As shown in figure \ref{fig:train}, the full database is very comprehensive for all possible crystalline phases of carbon at moderate temperatures and pressures with the additional inclusion of more exotic allotropes. 
+This comprehensive database contains approximately 17,000 configurations, which is too large to conduct training at a reasonable computational cost. A subset of this database, called Carbon GAP 20 Training set, was chosen to use in training through the farthest point sampling method. After that, data saturation of this sampling was checked to ensure that this new training dataset was as comprehensive as the full database. The training data contains 6,088 configurations of mostly crystalline carbon and some liquid and amorphous carbon with their respective properties. As shown in Figure \ref{fig:train}, the full database is very comprehensive for all possible crystalline phases of carbon at moderate temperatures and pressures with the additional inclusion of more exotic allotropes. 
 
 
 \begin{figure}
@@ -302,10 +301,10 @@ This dataset of geometries is then turned into a graph dataset. For each atom in
 
 \subsubsection{Test Dataset} 
 % DUNN and Modified Total
-Two datasets are used to test the performance of the model. One dataset contains carbon allotropes of monolayer graphene, bilayer graphene, graphite, and diamond with their DFT energies calculated using VASP. For simplicity, this dataset will be called the DUNN dataset for it was originally used to develop a Dropout Uncertainty Neural Network potential\cite{dunn}. The second test set comes from the source of the training set. That paper\cite{gap20} provides two datasets where the training set is a subset of the total dataset of carbon configurations. The training data was removed from the total dataset to create a Modified Total dataset to test on. The graph dataset versions of these test sets are created the same way the training graph dataset was made, referenced in section \ref{Train}. 
+Two datasets are used to test the performance of the model. One dataset contains carbon allotropes of monolayer graphene, bilayer graphene, graphite, and diamond with their DFT energies calculated using VASP. For simplicity, this dataset will be called the DUNN dataset for it was originally used to develop a Dropout Uncertainty Neural Network potential\cite{dunn}. The second test set comes from the source of the training set, Carbon Data Set Total. Since the training data is a subset, it was removed from the total dataset to create a Modified Total dataset to test on. The graph dataset versions of these test sets are created the same way the training graph dataset was made, referenced in section \ref{Train}. 
 
 % Dummy, Untrained, and QUIP
-Three other measurements were made to additionally evaluate the model performance. The first measurement uses the dummy regressor from Scikit-learn to make predictions and calculate its mean squared error (MSE) on both the DUNN and Modified Total test set. The second measurement uses the untrained version of the model to directly calculate predictions and MSE for both test sets to see how the model performs without any learning. The third measurement uses the QUIP software and the GAP 20 potential\cite{gap20} to calculate energies and MSE on both test sets once again. This measurement will allow the direct comparison of the cited research's results with this paper's results.
+Three other measurements were made to additionally evaluate the model performance. The first measurement uses the dummy regressor from Scikit-learn to make predictions and calculate its mean squared error (MSE) on both the DUNN and Modified Total test set. The second measurement uses the untrained version of the model to directly calculate predictions and MSE for both test sets to see how the model performs without any learning. The third measurement uses the QUIP software and the GAP 20 potential\cite{gap20} to calculate energies and MSE on both test sets once again. This measurement will allow the direct comparison of the cited research's results with our results.
 
 \subsubsection{Results} 
 
