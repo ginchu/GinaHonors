@@ -77,8 +77,12 @@ for complex molecules. Thus the application of machine learning and neural netwo
 can greatly help the complex and costly study of carbon with all of its various geometries.
 
 \subsection{Using Machine Learning on Carbon Molecules}
+<<<<<<< HEAD
 Currently, there are machine learning models that do predict the potential energy of carbon molecules. However, they are still very computationally expensive at an $O(N^3)$ and require a large, comprehensive amount of data. We propose a lower cost approach to learning the potential energy surface of carbon molecules with it being both polymorphic and physically-plausible. This means the model for the potential energy surface does not depend on the number of carbon atoms or the specific Cartesian coordinates of those atoms. Our method is to represent carbon molecules as graphs and have a graph neural network with message passing learn and predict on this graph-represented data. Our results show that this neural network is able to learn the potential energy of carbon structures and consistently improves as the number of message passing increases and other parameters are adjusted. Our model still needs improvement to match current chemistry softwares that predict potential energy but our experiments show the potential for even more promising performance and ways to improve our model for future research.
 
+=======
+Currently, there are machine learning models that do predict the potential energy of carbon molecules. However, they are still very computationally expensive and require a large, comprehensive amount of data. We propose a lower cost machine learning approach to learning the potential energy of carbon molecules. Our method is to represent carbon molecules as graphs and have a graph neural network with message passing learn and predict on this graph-represented data. Our results show that this neural network is able to learn the potential energy of carbon structures and consistently improves as the number of message passing increases and other parameters are adjusted. Our model still needs improvement to match current chemistry softwares that predict potential energy but our experiments show the potential for even more promising performance and ways to improve our model for future research.
+>>>>>>> 9ea5c5406e3b2c09082eb626ea0e32b213fe210b
 \newpage
 
 \section{Background}
@@ -328,7 +332,11 @@ Three other measurements were made to additionally evaluate the model performanc
     \hline
     
     \end{tabular}
+<<<<<<< HEAD
     \caption{Table of the differences in parameters between the top six models}\label{tab:param}
+=======
+    \caption{Table of the differences in parameters between the top six runs}\label{tab:param}
+>>>>>>> 9ea5c5406e3b2c09082eb626ea0e32b213fe210b
 \end{table}
 
 Experiments were started with 1 and 3 rounds of message passing with a batch size of 16, learning rate of 0.001, and 4 nearest neighbors. For those runs, the model was overfitting the training data because the train loss was gradually decrease while the test loss was unstable. We then just increased the number of message passing to 5 but those as well had unstable test losses even when the train losses were very stable. Because of this, we kept the number of message passing at 5 but lowered the learning rate and varied the batch size. Once both train and test losses seemed to gradually decrease, we also ran some experiments with the message passing set to 7. The specifications of the experiments done with message passing of 5 and 7 can be seen in Table \ref{tab:param} and the graphs of their MSE can be seen in Figure \ref{fig:graph}.
@@ -344,7 +352,11 @@ Even though our test datasets come from different sources, the model seems to im
   \includegraphics[scale=.5]{test.png}
   \includegraphics[scale=.5]{best.png}
   
+<<<<<<< HEAD
   \caption{Both legends refer to the runs in Table \ref{tab:param}. Upper graph shows the MSE test losses for each of the six models. Lower graph shows the best MSE losses for each of the six models. }\label{fig:graph}
+=======
+  \caption{Both legends refer to the runs in Table \ref{tab:param}. Upper graph shows the MSE test losses for each of the six runs. Lower graph shows the best MSE losses for each of the six runs. }\label{fig:graph}
+>>>>>>> 9ea5c5406e3b2c09082eb626ea0e32b213fe210b
 \end{figure}
 
 \begin{table}
